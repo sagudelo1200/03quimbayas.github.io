@@ -9,7 +9,7 @@ cred = getenv('QUIMBAYAS_API_CREDENTIALS')
 
 
 class FirebaseStorage:
-    '''  '''
+    ''' performs queries and executes actions on the database '''
     __engine = None
     __db = None
 
