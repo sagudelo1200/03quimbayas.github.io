@@ -3,7 +3,7 @@
 import firebase_admin
 from firebase_admin import credentials, firestore
 from os import getenv
-from models import collections
+from collections import collections
 
 cred = getenv('QUIMBAYAS_API_CREDENTIALS')
 
@@ -31,7 +31,7 @@ class FirebaseStorage:
         data = {}
 
         if col and col not in collections:
-            return {'error': 'Invalid collection'}
+            return {'error': f'Invalid collection ({col})'}
 
         for _col in collections:
             if not col or col == _col:
