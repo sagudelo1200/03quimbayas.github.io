@@ -35,4 +35,4 @@ responses:
              description: status of activity [active as true|expired as false]
           title:
              type: string
-             description: title of activity
+             description: title of activity 

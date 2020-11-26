@@ -10,9 +10,7 @@ from collections import storage
 @endp.route('/activities', methods=['GET'], **slashes)
 @swag_from('documentation/activities/all_activities.yml')
 def get_activities():
-    '''
-    Retrieves a list of all activities
-    '''
+    ''' Retrieves a list of all activities '''
     activities = storage.all('Activities')
     status = 400 if activities.get('error') else 200
 
