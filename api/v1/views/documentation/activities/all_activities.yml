@@ -1,0 +1,38 @@
+gets all activities
+---
+tags:
+  - Activities
+responses:
+  200:
+    description: request executed successfully
+    schema:
+      type: json
+      items:
+        properties:
+          created_at:
+            type: string
+            description: time of creation of document
+          updated_at:
+             type: string
+             description: time of last update of the document
+          id:
+            type: string
+            description: The uuid of document
+          date:
+             type: string
+             description: date of activity
+          hour:
+             type: string
+             description: time of activity
+          img_url:
+             type: string
+             description: activity banner url
+          place:
+             type: string
+             description: place of activity
+          active:
+             type: bool
+             description: status of activity [active as true|expired as false]
+          title:
+             type: string
+             description: title of activity

@@ -3,14 +3,21 @@
 from api.v1.views import app_endpoints
 from flask import Flask, jsonify, make_response
 from flask_cors import CORS
+from flasgger import Swagger
+from flasgger.utils import swag_from
 from os import getenv
+from api import slashes
 
 app = Flask(__name__)
+
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
+app.config['SWAGGER'] = {
+    'title': 'Quimbayas RESTful API',
+    'uiversion': 1
+}
 app.register_blueprint(app_endpoints)
 CORS(app, resources={r'/*': {'origins': '*'}})
-
-slashes = {'strict_slashes': True}
+Swagger(app)
 
 
 @app.errorhandler(404)
@@ -22,7 +29,7 @@ def not_found(e):
         description: a resource was not found
     '''
     response = make_response(
-        jsonify({'error': "Resource not found!"}),
+        jsonify({'error': "not valid endpoint"}),
         404
     )
 
@@ -34,9 +41,10 @@ def not_found(e):
 def status():
     ''' API Status '''
     response = make_response(
-        jsonify({'status': 'OK'}),
+        jsonify({'API': app.config['SWAGGER'], 'status': 'OK'}),
         200
     )
+
     response.headers['Content-Type'] = 'application/json'
     return response
 
