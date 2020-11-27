@@ -1,0 +1,20 @@
+get an activity
+---
+tags:
+  - Activity
+parameters:
+  - name: state_id
+    in: path
+    type: string
+    required: true
+    description: the unique id of the activity to update
+  - name: request
+    in: body
+    required: true
+responses:
+  200:
+    description: Request executed successfully
+  400:
+    description: Request is not JSON
+  404:
+    description: Activity not found

@@ -1,0 +1,19 @@
+post a new activity
+---
+tags:
+  - Activities
+parameters:
+  - name: request
+    in: body
+    required: true
+    requires:
+      - date
+    properties:
+      date:
+        type: string
+        description: date of activity
+  responses:
+  400:
+    description: Missing date or request is not JSON
+  201:
+    description: Request completed successfully

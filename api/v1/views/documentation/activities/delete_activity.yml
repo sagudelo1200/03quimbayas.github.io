@@ -1,0 +1,15 @@
+deletes a activity based on the id provided
+---
+tags:
+  - Activities
+parameters:
+  - name: activity_id
+    in: path
+    type: string
+    required: true
+    description: the unique id of the activity to delete
+responses:
+  404:
+    description: Activity not found
+  200:
+    description: Deletion request sucessful

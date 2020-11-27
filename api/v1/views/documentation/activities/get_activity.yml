@@ -1,8 +1,16 @@
-gets all activities
+gets a specific activity by ID
 ---
 tags:
   - Activities
+parameters:
+  - name: activity_id
+    in: path
+    type: string
+    required: true
+    description: the unique id of the activity
 responses:
+  404:
+    description: Activity not found
   200:
     description: Successful request
     schema:
