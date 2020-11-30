@@ -41,6 +41,7 @@ class FirebaseStorage:
             if not col or col == _col:
                 docs = self.__db.collection(_col).stream()
                 for doc in docs:
+                    print('\n' * 5, doc.to_dict(), '\n' * 5)
                     obj = doc.to_dict()
                     key = f'{_col}.{doc.id}'
                     obj['__class__'] = _col
@@ -66,7 +67,6 @@ class FirebaseStorage:
 
                     obj['id'] = doc.id
                     data[key] = obj
-
         return data
 
     def get(self, col, id):
@@ -85,9 +85,10 @@ class FirebaseStorage:
                 'message': f'the document <{id}> does not exist'}
         return doc
 
-    def save(self, col, doc, merge=False):
+    def save(self, col, doc, merge=False, id=None):
         ''' Save in the database '''
-        doc_ref = self.__db.collection(col).document(doc.get('id'))
+        doc_ref = self.__db.collection(col).document(
+            id if id else doc.get('id'))
 
         if doc.get('__class__'):
             doc['_class_'] = doc.get('__class__')
@@ -100,6 +101,12 @@ class FirebaseStorage:
         if col not in collections:
             return {'error': 400, 'message': f'Invalid collection ({col})'}
         doc_ref = self.__db.collection(col).document(id).delete()
+
+    def get_user(self, id):
+        ''' Get users for the authentication '''
+        doc_ref = self.__db.collection('Users').document(id)
+
+        return doc_ref.get()
 
     def count(self, col=None):
         ''' Counts documents '''
