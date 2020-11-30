@@ -41,7 +41,6 @@ class FirebaseStorage:
             if not col or col == _col:
                 docs = self.__db.collection(_col).stream()
                 for doc in docs:
-                    print('\n' * 5, doc.to_dict(), '\n' * 5)
                     obj = doc.to_dict()
                     key = f'{_col}.{doc.id}'
                     obj['__class__'] = _col
