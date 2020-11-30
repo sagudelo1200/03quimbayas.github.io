@@ -10,5 +10,4 @@ if type_storage == 'fb':
     from models.engine.firebase_storage import FirebaseStorage
     storage = FirebaseStorage()
 else:
-    print('QUIMBAYAS_TYPE_STORAGE not valid')
-    exit(-1)
+    raise TypeError('QUIMBAYAS_TYPE_STORAGE not valid')
