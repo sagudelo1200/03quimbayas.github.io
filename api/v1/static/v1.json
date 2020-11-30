@@ -1,0 +1,204 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "description": "Restful API for managment Quimbayas web",
+      "version": "1.0.0",
+      "title": "Quimbayas Restful API",
+      "license": {
+        "name": "",
+        "url": ""
+      }
+    },
+    "servers": [
+      {
+        "url": "/v1"
+      }
+    ],
+    "paths": {
+      "/": {
+        "get": {
+          "tags": [
+            "API index"
+          ],
+          "summary": "Returns status of API",
+          "responses": {
+            "200": {
+              "description": "OK"
+            }
+          }
+        }
+      },
+      "/stats": {
+        "get": {
+          "tags": [
+            "API index"
+          ],
+          "summary": "Returns stats of API",
+          "responses": {
+            "200": {
+              "description": "OK"
+            }
+          }
+        }
+      },
+      "/activities": {
+        "get": {
+          "tags": [
+            "Activity Request"
+          ],
+          "summary": "Returns a json with all activities",
+          "responses": {
+            "200": {
+              "description": "OK"
+            }
+          }
+        },
+        "post": {
+          "requestBody": {
+            "description": "Activity Request Object",
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/activityRequest"
+                }
+              }
+            }
+          },
+          "tags":[
+              "Activity Request"
+          ],
+          "summary": "Create a new activity",
+          "responses": {
+              "400": {
+                  "description": "Bad request. the document already exist, missing date or request is not JSON."
+              },
+              "201": {
+                  "description": "Success! the document was created"
+              }
+          }
+      }
+      },
+      "/activities/{id}": {
+        "get": {
+            "parameters": [
+                {
+                  "name": "id",
+                  "in": "path",
+                  "required": true,
+                  "description": "Unique id of the activity we want to get"
+                }
+            ],
+          "tags": [
+            "Activity Request"
+          ],
+          "summary": "Get activity request with given ID",
+          "responses": {
+            "200": {
+              "description": "OK"
+            },
+            "404": {
+              "description": "Failed. the document does not exist."
+            }
+          }
+        },
+        "put": {
+          "summary": "Edit a activity request by ID",
+          "tags": [
+            "Activity Request"
+          ],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "description": "Activity Request id"
+            }
+          ],
+          "requestBody": {
+            "description": "Activity Request Object",
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/activityRequest"
+                }
+              }
+            }
+          },
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "OK"
+            },
+            "400": {
+              "description": "Failed. Request is not a JSON."
+            },
+            "404": {
+              "description": "Failed. The document does not exist."
+            }
+          }
+        },
+        "delete": {
+          "summary": "Delete Activity Request by ID",
+          "tags": [
+            "Activity Request"
+          ],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "description": "Activity Request id"
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "Deleted"
+            },
+            "404": {
+              "description": "Failed. The document does not exist."
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "activityRequest": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "format": "string"
+            },
+            "date": {
+              "type": "string",
+              "format": "datetime",
+              "value": "dd/mm/yyyy"
+            },
+            "hour": {
+              "type": "string",
+              "format": "string"
+            },
+            "place": {
+              "type": "string",
+              "format": "string",
+              "description": "place where the activity will take place"
+            },
+            "img_url": {
+              "type": "string",
+              "format": "string",
+              "description": "url of banner image"
+            },
+            "description": {
+              "type": "string",
+              "format": "string"
+            }
+          }
+        }
+      }
+    }
+}

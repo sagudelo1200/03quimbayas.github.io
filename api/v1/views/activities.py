@@ -1,20 +1,19 @@
 #!/usr/bin/env python3
 ''' handles all default RESTful API actions for activities '''
-from api import slashes
-from flask import abort, jsonify, make_response, request
-from flasgger.utils import swag_from
-from models import storage
-from api.v1.views import app_endpoints as endp
 from api.v1.tools.response import custom_response
+from api.v1.views import app_endpoints as endp
+from api import slashes
+from flasgger.utils import swag_from
+from flask import abort, jsonify, make_response, request
+from models import storage
 from uuid import uuid4
-
-from time import sleep
 
 
 @endp.route('/activities', methods=['GET'], **slashes)
-@swag_from('documentation/activities/all_activities.yml')
 def all_activities():
-    ''' Retrieves a list of all activities '''
+    '''
+    file: documentation/activities/all_activities.yml
+    '''
     activities = storage.all('Activities')
     response = custom_response(activities)
 
@@ -22,52 +21,68 @@ def all_activities():
 
 
 @endp.route('/activities/<string:activity_id>', methods=['GET'], **slashes)
-@swag_from('documentation/activities/get_activity.yml')
 def get_activity(activity_id):
-    ''' Retrieves a activity with the especified id '''
+    '''
+    file: documentation/activities/get_activity.yml
+    '''
     activity = storage.get('Activities', activity_id)
     response = custom_response(activity)
 
     return response
 
 
-@endp.route('/activities/<string:activity_id>', methods=['POST'], **slashes)
-@swag_from('documentation/activities/post_activity.yml')
-def post_activity(activity_id):
-    ''' Create an activity '''
+@endp.route('/activities', methods=['POST'], **slashes)
+def post_activity():
+    '''
+    file: documentation/activities/post_activity.yml
+    '''
     doc = {}
 
     if not request.get_json():
         return custom_response({'error': 400, 'message': 'Not a JSON'})
 
-    _doc = storage.get('Activities', activity_id)
-
-    if not _doc or not _doc.get('error'):
-        return custom_response({
-            'error': 400,
-            'message': f'the document <{activity_id}> already exists'
-        })
-
     data = request.get_json()
-    if activity_id == 'create':
-        activity_id = str(uuid4()).replace('-', '')[0:20]
+    id = data.get('id')
+    date = data.get('date')
+
+    if not date:
+        return custom_response({
+                'error': 400,
+                'message': 'The date is missing'
+            })
+
+    if id:
+        _doc = storage.get('Activities', id)
+
+        print('\n' * 10, '###', _doc, '###')
+
+        if not _doc.get('error'):
+            print('into')
+            return custom_response({
+                'error': 400,
+                'message': f'the document <{id}> already exists'
+            })
+        print('left')
+    else:
+        id = str(uuid4()).replace('-', '')[0:20]
 
     data['_class_'] = 'Activities'
-    data['id'] = activity_id
+    data['id'] = id
 
     doc.update(data)
 
     storage.save('Activities', doc)
 
     return custom_response(
-        {'success': f'Document <{activity_id}> created'},
+        {'success': f'Document <{id}> created'},
         code=201)
 
 
 @endp.route('/activities/<string:activity_id>', methods=['PUT'], **slashes)
-@swag_from('documentation/activities/put_activity.yml')
 def put_activity(activity_id):
-    ''' Update an activity '''
+    '''
+    file: documentation/activities/put_activity.yml
+    '''
     doc = {}
 
     if not request.get_json():
@@ -90,9 +105,10 @@ def put_activity(activity_id):
 
 
 @endp.route('/activities/<string:activity_id>', methods=['DELETE'], **slashes)
-@swag_from('documentation/activities/delete_activity.yml')
 def delete_activity(activity_id):
-    ''' Delete an activity '''
+    '''
+    file: documentation/activities/delete_activity.yml
+    '''
 
     doc = storage.get('Activities', activity_id)
 
@@ -101,4 +117,5 @@ def delete_activity(activity_id):
 
     storage.delete('Activities', activity_id)
 
-    return custom_response({'success': f'Document <{activity_id}> deleted'})
+    return custom_response(
+        {'success': f'Document <{activity_id}> deleted'}, code=204)

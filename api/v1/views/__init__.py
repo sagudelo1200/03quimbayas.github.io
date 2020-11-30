@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-''' Blueprint of API '''
+''' API Blueprint '''
 from flask import Blueprint
 
-app_endpoints = Blueprint('app_endpoints', __name__, url_prefix='/')
+app_endpoints = Blueprint('app_endpoints', __name__, url_prefix='/v1/')
 
 from api.v1.views.activities import *
+from api.v1.views.index import *
