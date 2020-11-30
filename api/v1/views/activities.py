@@ -3,7 +3,7 @@
 from api.v1.tools.response import custom_response
 from api.v1.views import app_endpoints as endp
 from api import slashes
-from flasgger.utils import swag_from
+from flask_jwt import jwt_required
 from flask import abort, jsonify, make_response, request
 from models import storage
 from uuid import uuid4
@@ -32,6 +32,7 @@ def get_activity(activity_id):
 
 
 @endp.route('/activities', methods=['POST'], **slashes)
+@jwt_required()
 def post_activity():
     '''
     file: documentation/activities/post_activity.yml
@@ -54,15 +55,11 @@ def post_activity():
     if id:
         _doc = storage.get('Activities', id)
 
-        print('\n' * 10, '###', _doc, '###')
-
         if not _doc.get('error'):
-            print('into')
             return custom_response({
                 'error': 400,
                 'message': f'the document <{id}> already exists'
             })
-        print('left')
     else:
         id = str(uuid4()).replace('-', '')[0:20]
 
@@ -79,6 +76,7 @@ def post_activity():
 
 
 @endp.route('/activities/<string:activity_id>', methods=['PUT'], **slashes)
+@jwt_required()
 def put_activity(activity_id):
     '''
     file: documentation/activities/put_activity.yml
@@ -105,6 +103,7 @@ def put_activity(activity_id):
 
 
 @endp.route('/activities/<string:activity_id>', methods=['DELETE'], **slashes)
+@jwt_required()
 def delete_activity(activity_id):
     '''
     file: documentation/activities/delete_activity.yml
