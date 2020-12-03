@@ -7,6 +7,8 @@ from flask_jwt import jwt_required
 from flask import abort, jsonify, make_response, request
 from models import storage
 from uuid import uuid4
+from models.activity import Activity
+import models
 
 
 @endp.route('/activities', methods=['GET'], **slashes)
@@ -26,8 +28,18 @@ def get_activity(activity_id):
     file: documentation/activities/get_activity.yml
     '''
     activity = storage.get('Activities', activity_id)
-    response = custom_response(activity)
 
+    if activity:
+        activity['__class__'] = activity.get('_class_') or activity.get(
+            '__class__')
+
+        obj = models.from_dict(activity)
+
+        response = custom_response(obj.to_dict())
+    else:
+        response = custom_response({
+            'error': 404,
+            'message': f"The document <{activity_id}> does not exists"})
     return response
 
 
@@ -43,32 +55,20 @@ def post_activity():
         return custom_response({'error': 400, 'message': 'Not a JSON'})
 
     data = request.get_json()
-    id = data.get('id')
-    date = data.get('date')
+    id = data.get('id') or str(uuid4()).replace('-', '')[:20]
 
-    if not date:
+    if storage.exists('Activities', id):
         return custom_response({
-                'error': 400,
-                'message': 'The date is missing'
-            })
+            'error': 400,
+            'message': f'the document <{id}> already exists'
+        })
 
-    if id:
-        _doc = storage.get('Activities', id)
-
-        if not _doc.get('error'):
-            return custom_response({
-                'error': 400,
-                'message': f'the document <{id}> already exists'
-            })
-    else:
-        id = str(uuid4()).replace('-', '')[0:20]
-
-    data['_class_'] = 'Activities'
     data['id'] = id
 
     doc.update(data)
 
-    storage.save('Activities', doc)
+    obj = Activity(**doc)
+    obj.save()
 
     return custom_response(
         {'success': f'Document <{id}> created'},
@@ -88,16 +88,19 @@ def put_activity(activity_id):
 
     activity = storage.get('Activities', activity_id)
 
-    if activity.get('error'):
-        return custom_response(activity)
+    if not activity:
+        return custom_response({
+                'error': 404,
+                'message': f'the document <{activity_id}> does not exists'
+            })
 
     data = request.get_json()
-
     data['id'] = activity_id
 
     doc.update(data)
 
-    storage.save('Activities', doc, merge=True)
+    obj = Activity(**doc)
+    obj.save()
 
     return custom_response({'success': f'Document <{activity_id}> updated'})
 
@@ -109,12 +112,11 @@ def delete_activity(activity_id):
     file: documentation/activities/delete_activity.yml
     '''
 
-    doc = storage.get('Activities', activity_id)
-
-    if doc.get('error'):
-        return custom_response(doc)
-
-    storage.delete('Activities', activity_id)
-
-    return custom_response(
-        {'success': f'Document <{activity_id}> deleted'}, code=204)
+    if storage.exists('Activities', activity_id):
+        storage.delete('Activities', activity_id)
+        return custom_response({}, code=204)
+    else:
+        return custom_response({
+                'error': 404,
+                'message': f'the document <{activity_id}> does not exists'
+            })
