@@ -3,6 +3,7 @@
 import firebase_admin
 from firebase_admin import credentials, firestore
 from os import getenv
+from uuid import uuid4
 
 collections = ('Activities', )
 
@@ -35,7 +36,7 @@ class FirebaseStorage:
         data = {}
 
         if col and col not in collections:
-            return {'error': 400, 'message': f'Invalid collection ({col})'}
+            return False
 
         for _col in collections:
             if not col or col == _col:
@@ -70,36 +71,43 @@ class FirebaseStorage:
 
     def get(self, col, id):
         ''' Get doc from id in col '''
-        doc = {}
+        if self.exists(col, id):
+            obj = self.__db.collection(col).document(id).get()
 
-        _col = self.all(col)
-        if _col.get('error'):
-            return _col
+            doc = obj.to_dict()
+            doc['__class__'] = col
+            if doc.get('_class_'):
+                del doc['_class_']
+            return doc
 
-        doc = _col.get(f'{col}.{id}')
-
-        if not doc:
-            return {
-                'error': 404,
-                'message': f'the document <{id}> does not exist'}
-        return doc
-
-    def save(self, col, doc, merge=False, id=None):
+    def save(self, col, doc, new=False, merge=False):
         ''' Save in the database '''
-        doc_ref = self.__db.collection(col).document(
-            id if id else doc.get('id'))
+        from models import from_dict
+
+        from_dict(doc)
+
+        if self.exists(col, doc.get('id')):
+            merge = True
+            if doc.get('created_at') and not new:
+                del doc['created_at']
+
+        doc_ref = self.__db.collection(col).document(doc.get('id'))
 
         if doc.get('__class__'):
             doc['_class_'] = doc.get('__class__')
             doc.pop('__class__')
 
-        doc_ref.set(doc, merge=merge)
+        # doc_ref.set(doc, merge=merge)
+
+    def exists(self, col, id):
+        ''' Verifies the existence of a document '''
+        doc = self.__db.collection(col).document(id).get()
+
+        return True if doc.to_dict() else False
 
     def delete(self, col, id):
         ''' Delete a document '''
-        if col not in collections:
-            return {'error': 400, 'message': f'Invalid collection ({col})'}
-        doc_ref = self.__db.collection(col).document(id).delete()
+        self.__db.collection(col).document(id).delete()
 
     def get_user(self, id):
         ''' Get users for the authentication '''

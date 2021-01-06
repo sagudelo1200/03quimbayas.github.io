@@ -70,7 +70,7 @@ def not_found(e):
         description: a endpoint was not found
     '''
 
-    return custom_response({'error': 404, 'message': 'not a valid endpoint'})
+    return custom_response({'error': 404, 'message': 'invalid endpoint'})
 
 
 if __name__ == "__main__":
